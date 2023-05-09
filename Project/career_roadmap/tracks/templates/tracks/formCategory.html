@@ -1,0 +1,29 @@
+{% extends 'main.html' %}
+{% block content %}
+
+<main class="formCategory">
+ <p class="page-name">
+  {% if page_title == 'add-category' %}
+   <strong>Create a new category</strong>
+  {% else %}
+   <strong>Edit a category</strong>
+  {% endif %}
+ </p>
+
+ <div class="form-container">
+  <form method="POST">
+   {% csrf_token %}
+   {% for field in form %}
+   <div class="field">
+    <h3>{{field.label}}</h3>
+    {{field}}
+   </div>
+   {% endfor %}
+   <input type="submit" class="gs-button" {% if page_title == 'add-category' %}value="Create"{% else %}value="Save"{% endif %}>
+  </form>
+ </div>
+
+
+</main>
+
+{% endblock %}

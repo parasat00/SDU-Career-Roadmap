@@ -1,0 +1,52 @@
+{% extends 'authenticate.html' %}
+{% load static %}
+
+{% block content %}
+
+
+{% if mode == 'login' %}
+
+   <h2>Login to continue</h2>
+   <h3>Welcome back, sign in with existing <br> Student ID cridentials</h3>
+   <form class="login-form" action="{% url 'login' %}" method="POST">
+    {% csrf_token %}
+
+    <label for="email">Email</label>
+    <input type="email" placeholder="Enter your email" name="email">
+    <label for="password">Password</label>
+
+
+    <input type="password" name="password" placeholder="Enter your password here">
+    <a class="link-btn" href="{% url 'reset_password' %}">Forgot Password?</a>
+    <input type="submit" value="Log in">
+   </form>
+   <p>Dont have an account?   <a class="link-btn" href="{% url 'register' %}">Register</a></p>
+   
+{% else %}
+<h2>Register to continue</h2>
+<form class="login-form" action="{% url 'register' %}" method="POST">
+ {% csrf_token %}
+ <div class="register_grid">
+ {% for field in form %}
+   <p class="{{field.name}}">
+      <label for="{{ field.name }}">{{field.label}}</label>
+      {{field}}
+   </p>
+ {% endfor %}
+</div>
+<br>
+{% if form.errors %}
+   {% for field in form %}
+      {% for error in field.errors %}
+         <li class="error" >{{error}}</li>
+      {% endfor %}
+   {% endfor %}
+{% endif %}
+ <p class="text-link">Already have an account? <a class="link-btn" href="{% url 'login' %}">Login</a></p>
+ <input type="submit" value="Register">
+</form>
+
+{% endif %}
+
+
+{% endblock %}

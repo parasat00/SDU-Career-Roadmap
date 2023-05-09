@@ -1,0 +1,48 @@
+{% load static %}
+{% load allow_group %}
+<form class="left-header {{component_class}}" action="{% url 'search-page' %}" method="get">
+ <div class="search-wrapper">
+  <img src="{% static 'images/icon_search.svg' %}">
+  <input type="search" value="{{search.search}}" placeholder="Search for track or task..." name="search">
+ </div>
+
+ <div class="filter-wrapper">
+  <img src="{% static 'images/icon_filter.svg' %}" class="filter-wrapper-button" alt="">
+  <div class="filter-window hidden" id="filter-window">
+   <h5>What you search?</h5>
+   <label for="model-tracks">
+    <input type="radio" name="model" id="model-tracks" value="tracks" {% if search.model == 'tracks' or search.model is None %}checked{% endif %}>
+    Track
+   </label>
+   <label for="model-tasks">
+    <input type="radio" name="model" id="model-tasks" value="tasks" {% if search.model == 'tasks' %}checked{% endif %}>
+    Task
+   </label>
+   {% if request.user|has_group:"assessor" %}
+   <label for="assess-student">
+    <input type="radio" name="model" id="assess-student" value="assess-student" {% if search.model == 'assess-student' %}checked{% endif %}>
+    Works of the students
+   </label>
+   {% endif %}
+   {% if request.user|has_group:"admin" %}
+   <label for="model-users">
+    <input type="radio" name="model" id="model-users" value="users" {% if search.model == 'users' %}checked{% endif %}>
+    Users
+   </label>
+   {% endif %}
+   
+   <label for="orderBy">
+    Order By:
+    <select name="orderBy" id="orderBy">
+     <option value="-created" {% if search.orderBy == '-created' %}selected{% endif %}>Date</option>
+     <option value="title" {% if search.orderBy == 'title' %}selected{% endif %}>Alphabet</option>
+    </select>
+   </label>
+
+
+  </div>
+
+ </div>
+
+ <input type="submit" value="Search">
+</form>

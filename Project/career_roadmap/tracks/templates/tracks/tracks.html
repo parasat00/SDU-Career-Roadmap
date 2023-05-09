@@ -1,0 +1,105 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+<div class="tracks">
+
+{% if request.user.is_authenticated and mytracks|length > 0 %}
+ <h2>Current track{{mytracks|pluralize:"s"}}</h2>
+ {% for track_container in mytracks %}
+  <div class="track">
+   <div class="flex">
+    <div class="content-part">
+     <a href="{% url 'single-track' track_container.track.id %}" class="flex">
+      <img class="generic" src="{% static 'images/track_img.svg' %}" alt="">
+      <div>
+       <h3>{{track_container.track.title}}</h3>
+       <p>{{track_container.track.short_intro}}</p>
+      </div>
+     </a>
+
+     <div class="carousel-container">
+      <div class="carousel-button button-prev disabled"><img src="{% static 'images/button-prev.svg' %}" alt=""></div>
+      <div class="carousel-window">
+      <div class="carousel-itself flex">
+       {% for user_task in track_container.tasks %}
+        <a href="{% url 'single-task' user_task.task.id %}" class="task-block {{user_task.status}}">
+         <div class="icon"></div>
+         <div class="order">{{user_task.task.order}}</div>
+         <div class="title">{{user_task.task.title|truncatechars:10}}</div>
+        </a>
+       {% endfor %}
+      </div>
+      </div>
+      <div class="carousel-button button-next"><img src="{% static 'images/button-next.svg' %}" alt=""></div>
+     </div>
+
+    </div>
+    <div class="stats-part">
+     <h3>Stats</h3>
+     <ul>
+      <li>{{track_container.total_tasks}} task{{track_container.total_tasks|pluralize:"s"}} overall</li>
+      <li>{{track_container.completed}} task{{track_container.completed|pluralize:"s"}} done</li>
+      <li>{{track_container.waiting}} task{{track_container.waiting|pluralize:"s are"}} waiting for the mark</li>
+     </ul>
+     
+    </div>
+
+   </div>
+
+   <div class="flex last">
+    <div class="progress-line">
+     <div class="line">
+      <div class="progress" data-completed="{{track_container.completed}}" data-total="{{track_container.total_tasks}}"></div>
+     </div>
+    </div>
+    
+    <a class="last" href="{% url 'single-track' track_container.track.id %}">See more 
+     <img src="{% static 'images/arrow.svg' %}" alt="arrow">
+    </a>
+   </div>
+
+  </div>
+ {% endfor %}
+{% endif %}
+
+{% for tracks_by_category in tracks_by_categories %}
+  {% if tracks_by_category.tracks|length > 0 %}
+    <div class="category">
+    <h3>{{tracks_by_category.category}}</h3>
+    <div class="first flex">
+      <div class="carousel-button button-prev disabled"><img src="{% static 'images/button-prev.svg' %}" alt=""></div>
+      <div class="category-window">
+        <div class="flex">
+          {% for track in tracks_by_category.tracks %}
+          <a href="{% url 'single-track' track.track.id %}" class="small-track">
+            <h4>{{track.track.title}}</h4>
+            <p>{{ track.track.task_set.all|length }} task{{track.track.task_set.all|pluralize:"s"}}</p>
+            <p>{{track.track.students|length}} student{{track.track.students|pluralize:"s"}}</p>
+            
+            {% if track.rating is not None %}
+            <div class="rating" data-value="{{track.rating}}">
+              <div class="rating-display">
+                <i class="star"></i>
+                <i class="star"></i>
+                <i class="star"></i>
+                <i class="star"></i>
+                <i class="star"></i>
+              </div>
+            </div>
+            {% endif %}
+          </a>
+          {% endfor %}
+          
+        </div>
+      </div>
+      <div class="carousel-button button-next"><img src="{% static 'images/button-next.svg' %}" alt=""></div>
+    </div>
+    </div>
+  {% endif %}
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/tracks_scripts.js' %}"></script>
+{% endblock %}

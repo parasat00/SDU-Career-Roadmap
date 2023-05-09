@@ -1,0 +1,24 @@
+{% extends 'main.html' %}
+{% block content %}
+<div class="assign-users">
+<h3>Assign assessors for your track</h3>
+<form method="POST">
+ {% csrf_token %}
+ {% for profile in profiles %}
+  <label for="{{profile.id}}" class="user-block">
+   <input type="checkbox" name="profile" id="{{profile.id}}" value="{{profile.id}}">
+   <div class="container">
+    <div class="user-wrapper"><img src="{{profile.profile_image.url}}" alt=""></div>
+    {{profile.first_name}} {{profile.last_name}} 
+    <div class="profile-email">{{profile.email}}</div>
+   </div>
+  </label>
+  
+  
+ {% endfor %}
+
+ <br>
+ <input type="submit" value="Assign">
+</form>
+</div>
+{% endblock %}

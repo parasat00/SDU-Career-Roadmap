@@ -1,0 +1,45 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+<p class="page-name edit-profile">
+ <a href="{% url 'profile' request.user.profile.id %}">Profile</a> \ 
+ <strong>Profile Edit</strong>
+</p>
+<form method="POST" enctype="multipart/form-data">
+ {% csrf_token %}
+<div class="profile">
+
+ <div class="profile-block">
+  <div class="profile_pic">
+   <div class="add_photo" onclick="document.getElementById('id_profile_image').click()" ><span>Add Photo</span></div>
+   <div class="img_form">{{form.profile_image}}</div>
+   <img id="output" src="{{ request.user.profile.profile_image.url }}" alt="profile_pic">
+  </div>
+  <div class="text_inputs">
+   <label for="first_name">{{form.first_name.label}}</label>
+   {{form.first_name}}
+   <label for="last_name">{{form.last_name.label}}</label>
+   {{form.last_name}}
+   <label for="short_intro">{{form.short_intro.label}}</label>
+   {{form.short_intro}}
+  </div>
+ </div>
+
+ <div class="other_inputs">
+  {% for field in form %}
+   {% if field.name != "first_name" and field.name != "last_name" and field.name != "short_intro" and field.name != "profile_image" %}
+    <label for="{{field.name}}">{{field.label}}</label>
+    <br>
+    {{field}}
+    <br>
+   {% endif %}
+  {% endfor %}
+
+  <input type="submit" value="Save">
+ </div>
+</div>
+</form>
+{% endblock %}
+{% block page_scripts %}
+<script src="{% static 'js/profile_edit.js' %}"></script>
+{% endblock %}

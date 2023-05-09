@@ -1,0 +1,88 @@
+{% load static %}
+{% load allow_group %}
+<div>
+  <div class="side-menu">
+    <a href="#" class="closeBtn">&times;</a>
+    <div class="logo">
+    <img src="{% static 'images/Logo.svg' %}" alt="">
+    </div>
+
+    {% include 'searchComponent.html' with component_class='search short' %}
+  
+  <ul>
+    
+    <a href="{% url 'tracks' %}">
+      <li {% if page_title == 'tracks' %}class="active"{% endif %}>
+        <img class="icons" src="{% static 'images/icon_home.svg' %}" alt="icon_home">&nbsp; Dashboard</li></a>
+    
+    <!-- <li><img class="icons" src="{% static 'images/icon_categories.svg' %}" alt="icon_categories">&nbsp; Categories</li> -->
+    {% if request.user.is_authenticated %}
+      {% if request.user|has_group:"assessor" or request.user|has_group:"admin" %}
+        {% if request.user|has_group:"admin" %}
+          <a href="{% url 'admin-assessor-page' %}">
+        {% elif request.user|has_group:"assessor" %}
+          <a href="{% url 'assessor-page' %}">
+        {% endif %}
+            <li {% if page_title == 'assessor-page' %}class="active"{% endif %}>
+              <img class="icons" src="{% static 'images/assessment_icon.svg' %}" alt="icon_home">&nbsp;
+              Assess students</li>
+          </a>
+      {% endif %}
+      {% if request.user|has_group:"admin" or request.user|has_group:"creator" %}
+          <a href="{% url 'add-track' %}">
+            <li {% if page_title == 'add-track' %}class="active"{% endif %}>
+              <img class="icons" src="{% static 'images/Plus.svg' %}" alt="plus icon">&nbsp;
+              Add a track
+            </li>
+          </a>
+      {% endif %}
+      {% if request.user|has_group:"admin" %}
+      <a href="{% url 'categories' %}">
+        <li {% if page_title == 'categories' %}class="active" {% endif %}>
+          <img class="icons" src="{% static 'images/icon_categories.svg' %}" alt="plus icon">&nbsp;
+          Categories
+        </li>
+      </a>
+      <a href="{% url 'profiles' %}">
+        <li {% if page_title == 'profiles' %}class="active" {% endif %}>
+          <img src="{% static 'images/admin_icon.svg' %}" alt="logout icon" class="icons">&nbsp;
+          Users
+        </li>
+      </a>
+      {% endif %}
+      <a href="{% url 'logout' %}">
+        <li>
+          <img src="{% static 'images/Logout.svg' %}" alt="logout icon" class="icons">&nbsp;
+          Logout
+        </li>
+      </a>
+    {% endif %}
+  </ul>
+  </div>
+
+  <div class="upper_flex">
+    <div class="bars_icon">
+      <i class="fa fa-bars" style="font-size:24px"></i>
+    </div>
+    <div class="logo">
+      <img src="{% static 'images/Logo.svg' %}" alt="">
+    </div>
+    {% include 'searchComponent.html' with component_class='search wide' %}
+    {% if request.user.is_authenticated %}
+    <div class="user-block">
+      <img class="waiving" src="{% static 'images/waiving.svg' %}" alt="waiving">
+      <a href="{% url 'profile' request.user.profile.id %}">
+        <h4>Hi, {{request.user.profile.first_name}}</h4>
+        <div class="user-wrapper">
+          <img src="{{request.user.profile.profile_image.url}}" alt="">
+        </div>
+      </a>
+    </div>
+    {% else %}
+    <div class="auth-buttons">
+      <a href="{% url 'register' %}" class="auth-button signUp">Sign up</a>
+      <a href="{% url 'login' %}" class="auth-button signIn">Sign in</a>
+    </div>
+    {% endif %}
+  </div>
+</div>

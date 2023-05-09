@@ -1,0 +1,194 @@
+@import url(https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap);
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-size: cover;
+    background-image: url("../images/loginBack1.png");
+}
+ul.messages {
+    list-style: none;
+    padding: 0;
+}
+li.error {
+    background-color: rgba(255, 0, 0, 0.7);
+}
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+.text-link{margin-top: 20px;}
+.link-btn {
+    font-family: Poppins;
+    text-decoration: none;
+    color: #002469;
+    font-size: 14px;
+    margin-left: auto;
+    margin-top: 10px;
+    font-weight: 500;
+}
+.link-btn:hover {
+    color: #9e2629;
+}
+.App {
+    text-align: center;
+    display: flex;
+    min-height: 80vh;
+    padding-top: 50px;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-left: 40%;
+}
+    
+.auth-form-container, .login-form, .register-form {
+display: flex;
+flex-direction: column;
+background-color: white;
+}
+
+.auth-form-container {
+padding: 2rem 4rem;
+border: 1px solid white;
+border-radius: 30px;
+margin: 0.5rem;
+margin-left: 0;
+position: relative;
+}
+
+label {
+margin-top: 20px;    
+text-align: left;
+font-family: 'Poppins';
+font-style: normal;
+font-weight: 500;
+font-size: 20px;
+line-height: 30px;
+color: #002469;
+flex: none;
+order: 0;
+flex-grow: 0;
+}
+input[type=password], 
+input[type=text], 
+input[type=email] {
+margin: 5px;
+padding: 1rem;
+border: none;
+border-radius: 10px;
+background-color: #FFEB99;
+}
+input[type=submit] {
+border: none;
+background-color: #1B283F;
+margin: 30px auto 15px;
+padding: 10px 25px;
+border-radius: 8px;
+cursor: pointer;
+color: #fff;
+font-family: 'Poppins';
+font-size: 20px;
+font-weight: 500;
+}
+input[type=submit]:hover {
+    background-color: #9e2629;
+}
+.back-btn {
+font-family: 'Poppins';
+font-style: normal;
+font-weight: 600;
+font-size: 24px;
+line-height: 36px;
+color: #002469;
+}
+
+
+h2{
+padding-top: 20px;    
+margin: 0;
+font-family: 'Poppins';
+font-style: normal;
+font-weight: 600;
+font-size: 24px;
+line-height: 48px;
+color: #002469;
+}
+h3, p{
+margin: 0;
+color: #002469;
+font-size: 14px;
+color:rgba(11, 30, 87, 0.5);
+font-weight: 600;
+}
+img{
+width: 350px;
+height: 94px;
+margin: auto;
+}
+.register_grid {
+    display: grid;
+    gap: 5px 30px;
+    grid-template-columns: repeat(2,minmax(250px, 1fr));
+    grid-template-rows: repeat(3,100px);
+}
+.register_grid p {
+    display: flex;
+    flex-direction: column;
+}
+.register_grid .email {
+    grid-column: 1 / -1;
+}
+input[value=Register]{
+    margin-top: 20px;
+}
+.txt {
+    width: 350px;
+}
+h3.too_long {
+    width: 400px;
+}
+.tracks_link i {
+    font-size: 25px;
+    color: #002469;
+}
+.tracks_link i:hover {
+    color: #9e2629;
+}
+.tracks_link {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+@media only screen and (max-width: 800px) {
+    .App {margin-left: 0;}
+    .auth-form-container {margin: 0;}
+    .register_grid{
+        display: flex;
+        flex-direction: column;
+    }
+    input[type=password], input[type=text], input[type=email] {
+        padding: 0.5rem 1rem;
+    }
+    h2 {font-size: 1.1rem;padding: 0;}
+    label {margin-top: 0;}
+    h3, label, input {font-size: 0.9rem;}
+    .text-link {margin: 0;}
+    input[type="submit"] {
+        margin: 10px 0;
+        font-size: 0.9rem;
+    }
+    .auth-form-container {padding: 2rem;}
+}
+@media only screen and (max-width: 500px) {
+    .auth-form-container img {width: 50%; height: 67px;}
+    .auth-form-container {padding: 2rem 1rem;}
+}
+@media only screen and (max-width: 500px) {
+    h3.too_long {width: fit-content;}
+    .auth-form-container {margin: 5px;}
+    .txt{width: fit-content; overflow-wrap: break-word;}
+}

@@ -1,0 +1,42 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+
+<p class="page-name">
+ <strong>Assessment page</strong>
+</p>
+
+<div class="assessor-page">
+ {% if results|length > 0 %}
+ <div class="students">
+  <h2>Assessor{{results|pluralize:"s"}}:</h2>
+  {% for result in results %}
+  <a href="{% url 'assessor-supervise' result.assessor.id %}" class="student">
+   <div class="user-block">
+    <div class="user-wrapper">
+     <img src="{{result.assessor.profile_image.url}}" alt="avatar">
+    </div>
+    <div class="full-name">{{result.assessor.first_name}} {{result.assessor.last_name}}</div>
+
+    <div class="stats">
+     <div>
+      <i class="fa fa-clock-o" aria-hidden="true"></i>
+      {{result.waiting}} task{{result.waiting|pluralize:"s"}} not graded
+     </div>
+     <div class="completed">
+      &#10004;
+      {{result.completed}} task{{result.completed|pluralize:"s"}} graded
+     </div>
+    </div>
+   </div>
+  </a>
+  {% endfor %}
+  {% include 'pagination.html' with queryset=results page_range=page_range %}
+ </div>
+ {% else %}
+ There is no submissions at the moment
+ {% endif %}
+</div>
+
+{% endblock %}

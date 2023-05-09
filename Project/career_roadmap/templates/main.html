@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+{% load static %}
+{% load allow_group %}
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta http-equiv="X-UA-Compatible" content="IE=edge">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <link rel="stylesheet" href="{% static 'styles/main.css' %}">
+ <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png'%}">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ <script src="{% static 'js/main.js' %}" defer></script>
+ <title>Career Roadmap</title>
+</head>
+<body>
+ {% include 'navBar.html' %}
+
+
+  <div class="modal-view {% if not rate_track %}hidden{% endif %}">
+    <div class="content">
+      <span class="close" id="modal-close">&times;</span>
+      {% if rate_track %}
+        <h2>Rate the track <span class="track">{{track.title}}</span></h2>
+        <form method="POST">
+          {% csrf_token %}
+          <fieldset class="rating-input rating-display">
+            <input type="radio" name="rating" id="star5" value="5">
+            <label for="star5" class="full"></label>
+            <input type="radio" name="rating" id="star4.5" value="4.5">
+            <label for="star4.5" class="half"></label>
+            <input type="radio" name="rating" id="star4" value="4">
+            <label for="star4" class="full"></label>
+            <input type="radio" name="rating" id="star3.5" value="3.5">
+            <label for="star3.5" class="half"></label>
+            <input type="radio" name="rating" id="star3" value="3">
+            <label for="star3" class="full"></label>
+            <input type="radio" name="rating" id="star2.5" value="2.5">
+            <label for="star2.5" class="half"></label>
+            <input type="radio" name="rating" id="star2" value="2">
+            <label for="star2" class="full"></label>
+            <input type="radio" name="rating" id="star1.5" value="1.5">
+            <label for="star1.5" class="half"></label>
+            <input type="radio" name="rating" id="star1" value="1" checked>
+            <label for="star1" class="full"></label>
+          </fieldset>
+          <textarea name="comment" id="comment" rows="5"
+            placeholder="Share with us your thoughts about this track. Was this a good experience?"></textarea>
+          <input type="submit" value="Save and continue" class="rate-track" name="Rate">
+        </form>
+      {% else %}
+        {% if track %}
+          <h3>Are you sure you want to delete the track {{track.title}}?</h3>
+          <p>This process cannot be undone</p>
+          <form method="POST" action="{% url 'delete-track' track.id %}">
+        {% elif task %}
+        <h3>Are you sure you want to delete the task {{task.title}}?</h3>
+        <p>This process cannot be undone</p>
+        <form method="POST" action="{% url 'delete-task' task.id %}">
+        {% elif page_title == 'categories' %}
+        <h3>Are you sure you want to delete this?</h3>
+        <p>This process cannot be undone</p>
+        <form method="POST">
+        {% elif allowed %}
+        <h3>Are you sure you want to delete this account {{profile}}?</h3>
+        <p>This process cannot be undone</p>
+        <form method="POST" action="{% url 'delete-profile' profile.id %}">
+        {% endif %}
+          {% csrf_token %}
+          <div class="delete-buttons">
+            <a href="#" class="delete-cancel">Cancel</a>
+            <input type="submit" value="Delete" class="delete-confirm">
+          </div>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+ <div class="main_block">
+  
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+
+ {% block content %}
+ {% endblock %}
+ </div>
+{% block page_scripts %}
+{% endblock %}
+</body>
+</html>

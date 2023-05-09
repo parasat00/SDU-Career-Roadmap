@@ -1,0 +1,29 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block content %}
+ <main class="categories">
+  <p class="page-name">
+   <strong>Categories</strong>
+  </p>
+  <div class="container">
+   <h1>Categories of the track</h1>
+   <a href="{% url 'add-category' %}" class="add-category">
+     <img class="icons" src="{% static 'images/Plus.svg' %}" alt="plus icon">&nbsp;
+     Add a category
+   </a>
+   {% for category in categories %}
+    <div class="category-block">
+     <h3>{{category.title}}</h3>
+     <div class="links">
+      <a href="{% url 'edit-category' category.id %}">
+       <i class="fa fa-pencil" aria-hidden="true"></i>
+      </a>
+      <a href="#" class="delete" data-id="{{category.id}}">
+       <i class="fa fa-trash-o" aria-hidden="true"></i>
+      </a>
+     </div>
+    </div>
+   {% endfor %}
+  </div>
+ </main>
+{% endblock %}

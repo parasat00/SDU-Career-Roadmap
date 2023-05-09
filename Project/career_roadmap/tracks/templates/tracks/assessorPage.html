@@ -1,0 +1,53 @@
+{% extends 'main.html' %}
+{% load static %}
+{% load allow_group %}
+
+{% block content %}
+
+{% if request.user|has_group:"admin" %}
+<p class="page-name">
+ <a href="{% url 'admin-assessor-page' %}">Assessors</a> \
+ <strong>{{assessor.first_name}}'s assessment page</strong>
+</p>
+{% else %}
+<p class="page-name">
+ <strong>Assessment page</strong>
+</p>
+{% endif %}
+ <div class="assessor-page">
+  {% if results|length > 0 %}
+  <div class="students">
+   <h2>View works of the Student{{results|pluralize:"s"}}</h2>
+   {% for result in results %}
+   {% if request.user|has_group:"admin" %}
+   <a href="{% url 'assess-student-admin' assessor=assessor.id  pk=result.student.id %}" class="student">
+   {% else %}
+   <a href="{% url 'assess-student' result.student.id %}" class="student">
+   {% endif %}
+    <div class="user-block">
+     <div class="user-wrapper">
+      <img src="{{result.student.profile_image.url}}" alt="avatar">
+     </div>
+     <div class="full-name">{{result.student.first_name}} {{result.student.last_name}}</div>
+
+     <div class="stats">
+      <div>
+       <i class="fa fa-clock-o" aria-hidden="true"></i>
+       {{result.waiting}} task{{result.waiting|pluralize:"s"}} waiting
+      </div>
+      <div class="completed">
+       &#10004;
+       {{result.completed}} task{{result.completed|pluralize:"s"}} checked
+      </div>
+     </div>
+    </div>
+   </a>
+   {% endfor %}
+   {% include 'pagination.html' with queryset=results page_range=page_range %}
+  </div>
+  {% else %}
+  There is no submissions for you at the moment
+  {% endif %}
+ </div>
+
+{% endblock %}

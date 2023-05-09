@@ -1,0 +1,214 @@
+{% extends 'main.html' %}
+
+{% load static %}
+{% load track_extra %}
+{% load allow_group %}
+{% block content %}
+
+
+<p class="page-name">
+  <a href="{% url 'single-track' task.track.id %}">{{task.track.title}}</a> \
+  <strong>{{task.title}}</strong>
+</p>
+
+<div class="single-task {{user_task.status}}">
+ <div class="first">
+  <h2>{{task.title}}
+    {% if request.user|has_group:"admin" or request.user|is_author:track.id %}
+    <span class="links">
+      <a href="{% url 'edit-task' task.id %}">
+        <i class="fa fa-pencil" aria-hidden="true"></i>
+      </a>
+      <a href="#" class="delete">
+        <i class="fa fa-trash-o" aria-hidden="true"></i>
+      </a>
+    </span>
+    {% endif %}
+  </h2>
+
+  {% if user_task.status is not None %}
+  <div class="status">Status: <span class="{{user_task.status}}">{{user_task.get_status_display}}</span></div>
+  {% endif %}
+</div>
+ <div class="stats">
+  <div>{{students_num}} students</div>
+  <canvas id="canvas" width=400 height=80></canvas>
+ </div>
+ <p>{{task.short_intro}}</p>
+
+ <!-- if user enrolled into track and not started this task -->
+ {% if track in request.user.profile.my_tracks.all %}
+  {% if assessors|length == 0 %}
+    <div class="color_red">
+      Add assessors to the track to start the task
+      <a href="{% url 'assign-assessors' track.id %}">here</a>
+    </div>
+  {% elif user_task.status == 'available'%}
+  <form method="POST">
+    {% csrf_token %}
+    <div class="assessors_block">
+      <label for="id_assessors">choose your assessors:</label>
+      <select name="assessors" id="id_assessors" required>
+        <option value="" disabled selected>Assessors</option>
+        {% for assessor in assessors %}
+        <option value="{{assessor.id}}">
+          {{assessor.profile}}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <input type="submit" value="Start" class="task-start" name="startTask">
+  </form>
+  {% endif %}
+  {% if user_task.status != 'available' and user_task.status != 'blocked' %}
+    <div class="content">
+      {{task.content|convert_markdown|safe}}
+    </div>
+  {% endif %}
+
+  {% if user_task.comment is not None and user_task.comment != "" and user_task.status == 'inProgress' %}
+    <div class="feedback-block">
+      <div class="flex">
+        <h3>Assessors comment</h3>
+        <div class="grade">Grade status: <span class="{{user_task.grade}}">{{user_task.get_grade_display}}</span>
+        </div>
+      </div>
+      <div>
+        {{user_task.comment}}
+      </div>
+    </div>
+  {% endif %}
+
+
+  {% if user_task.status == 'inProgress' %}
+    <h3>Submission</h3>
+    <form method="POST" enctype="multipart/form-data" id="main-form">
+      {% csrf_token %}
+      <div class="submissionLinks">      
+          <div>
+            <label for="{{form.github_link.name}}">{{form.github_link.label}}</label>
+            {{form.github_link}}
+          </div>
+          
+          <div>
+            <label for="{{form.youtube_link.name}}">{{form.youtube_link.label}}</label>
+            {{form.youtube_link}}
+          </div>
+
+          <div>
+            <label for="{{form.submit_file.name}}">{{form.submit_file.label}}</label>
+            {{form.submit_file}}
+            <div class="file_block">
+              <input type="button" value="Browse..." onclick="checkFile()">
+              {% if user_task.submit_file == '' %}
+                <div id="file-txt">No Files Chosen</div>
+              {% else %}
+                <div>{{user_task.submit_file}}</div>
+              {% endif %}
+            </div>
+          </div>
+      </div>
+
+      {% if user_task.status != 'available' %}
+      <div class="assessor user-block">
+        <div>Assessor:</div>
+        {% for assessor in assigned_assessors %}
+        <a href="{% url 'profile' assessor.track_assessor.profile.id %}" class="user-wrapper">
+          <img src="{{assessor.track_assessor.profile.profile_image.url}}" alt="">
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+
+      <input type="submit" value="Submit" name="submitTask" class="submitTask hidden" id="submitTask">
+    </form>
+  {% endif %}
+
+
+  {% if user_task.status == 'waiting' or user_task.status == 'completed' %}
+    <h3>Submission</h3>
+    <div class="submissionLinks waiting">
+      {% if user_task.github_link is not None %}
+      <div>
+        <label>Github link</label>
+        <a href="{{user_task.github_link}}">{{user_task.github_link}}</a>
+      </div>
+      {% endif %}
+    
+      {% if user_task.youtube_link is not None %}
+      <div>
+        <label>Youtube link</label>
+        <a href="{{user_task.youtube_link}}">{{user_task.youtube_link}}</a>
+      </div>
+      {% endif %}
+    
+      {% if user_task.submit_file != "" %}
+      <div>
+        <label>Your job</label>
+        
+        <div class="file_block">
+          <a class="download-file" href="{% url 'download-file' user_task.id %}">Download</a>
+          <div>{{user_task.submit_file}}</div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if user_task.status != 'available' %}
+    <div class="assessor user-block">
+      <div>Assessor:</div>
+      {% for assessor in assigned_assessors %}
+      <a href="{% url 'profile' assessor.track_assessor.profile.id %}" class="user-wrapper">
+        <img src="{{assessor.track_assessor.profile.profile_image.url}}" alt="">
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if user_task.status == 'waiting' %}
+      <div class="waiting end-txt">Wait untill you get your grade...</div>
+    {% else %}
+      <div class="completed end-txt">Congratulations you have completed this task!!!</div>
+    {% endif %}
+  {% endif %}
+ {% endif %}
+ 
+
+ {% if prerequisites|length > 0 %}
+ <hr>
+ <div class="prerequisites">
+  <h3>Prerequisites:</h3>
+  {% if not track in request.user.profile.my_tracks.all %}
+  <p>To get access to this task you have to enroll into {{track.title}} track</p>
+  {% elif user_task.status == 'blocked' %}
+  <p>To get access to this task you have to complete all prerequisite tasks below</p>
+  {% endif %}
+   <div class="list">
+    {% if track in request.user.profile.my_tracks.all %}
+      {% for pr in prerequisites %}
+      <a href="{% url 'single-task' pr.task.id %}" class="task-block {{pr.status}}">
+        <div class="icon"></div>
+        <div class="order">{{pr.task.order}}</div>
+        <div class="title">{{pr.task.title}}</div>
+      </a>
+      {% endfor %}
+    {% else %}
+      {% for pr in prerequisites %}
+      <a href="{% url 'single-task' pr.id %}" class="task-block blocked">
+        <div class="icon"></div>
+        <div class="order">{{pr.order}}</div>
+        <div class="title">{{pr.title}}</div>
+      </a>
+      {% endfor %}
+    {% endif %}
+   </div>
+ </div>
+ {% endif %}
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/single_task.js' %}" defer></script>
+{{data|json_script:"single-task-passed-data"}}
+{% endblock %}

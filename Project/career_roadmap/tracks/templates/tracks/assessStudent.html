@@ -1,0 +1,74 @@
+{% extends 'main.html' %}
+{% load static %}
+{% load allow_group %}
+{% block content %}
+
+
+<p class="page-name">
+ {% if request.user|has_group:"admin" %}
+ {% if assessor %}
+  <a href="{% url 'assessor-supervise' assessor.id %}">{{assessor.first_name}}'s assessment page</a> \
+ {% endif %}
+ <strong>{{profile.first_name}}'s works</strong>
+ {% else %}
+ <a href="{% url 'assessor-page' %}">Assessor's page</a> \
+ <strong>{{profile.first_name}}'s works</strong>
+ {% endif %}
+</p>
+
+<div class="tracks">
+
+ {% if request.user.is_authenticated and track_containers|length > 0 %}
+ <h2>Track{{track_containers|pluralize:"s"}}</h2>
+ {% for track_container in track_containers %}
+ <div class="track">
+  <div class="flex">
+   <div class="content-part">
+    <div class="flex">
+     <img class="generic" src="{% static 'images/track_img.svg' %}" alt="">
+     <div>
+      <h3>{{track_container.track.title}}</h3>
+      <p>{{track_container.track.short_intro}}</p>
+     </div>
+    </div>
+
+    <div class="carousel-container">
+     <div class="carousel-button button-prev disabled"><img src="{% static 'images/button-prev.svg' %}" alt=""></div>
+     <div class="carousel-window">
+      <div class="carousel-itself flex">
+       {% for user_task in track_container.tasks %}
+       {% if request.user|has_group:"admin" %}
+       <a href="{% url 'assess-task-admin' assessor.id user_task.id %}" class="task-block {{user_task.status}}">
+        {% else %}
+        <a href="{% url 'assess-task' user_task.id %}" class="task-block {{user_task.status}}">
+        {% endif %}
+        <div class="icon"></div>
+        <div class="order">{{user_task.task.order}}</div>
+        <div class="title">{{user_task.task.title|truncatechars:10}}</div>
+       </a>
+       {% endfor %}
+      </div>
+     </div>
+     <div class="carousel-button button-next"><img src="{% static 'images/button-next.svg' %}" alt=""></div>
+    </div>
+
+   </div>
+   <div class="stats-part">
+    <h3>Stats</h3>
+    <ul>
+     <li>{{track_container.completed}} task{{track_container.completed|pluralize:"s"}} done</li>
+     <li>{{track_container.waiting}} task{{track_container.waiting|pluralize:"s are"}} waiting for the mark</li>
+    </ul>
+   </div>
+
+  </div>
+
+ </div>
+ {% endfor %}
+ {% endif %}
+
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/tracks_scripts.js' %}"></script>
+{% endblock %}

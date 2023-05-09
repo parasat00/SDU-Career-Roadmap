@@ -1,0 +1,90 @@
+{% extends 'main.html' %}
+
+{% load static %}
+{% load track_extra %}
+{% load allow_group %}
+{% block content %}
+
+<p class="page-name">
+ {% if request.user|has_group:"admin" %}
+ <a href="{% url 'assess-student-admin' assessor.id profile.id %}">{{profile.first_name}}'s works</a> \
+ {% else %}
+ <a href="{% url 'assess-student' profile.id %}">{{profile.first_name}}'s works</a> \
+ {% endif %}
+ <strong>{{task.title}}</strong>
+</p>
+
+<div class="single-task assessor">
+ <h2>{{task.title}}</h2>
+
+ {% if user_task.status is not None %}
+ <div class="status">Status: <span class="{{user_task.status}}">{{user_task.get_status_display}}</span></div>
+ {% endif %}
+
+ <p>{{task.short_intro}}</p>
+
+ <div class="content">
+  {{task.content|convert_markdown|safe}}
+  <hr>
+ </div>
+
+ <h3>Assess Student</h3>
+ <div class="student_block">
+  <a href="{% url 'profile' profile.id %}" class="assessor user-block">
+   <div class="user-wrapper">
+    <img src="{{profile.profile_image.url}}" alt="">
+   </div>
+   <div>{{profile.first_name}} {{profile.last_name}}</div>
+  </a>
+  <div class="submissionLinks waiting">
+   {% if user_task.github_link is not None %}
+   <div>
+    <label>Github link</label>
+    {{user_task.github_link}}
+   </div>
+   {% endif %}
+
+   {% if user_task.youtube_link is not None %}
+   <div>
+    <label>Youtube link</label>
+    <span>{{user_task.youtube_link}}</span>
+   </div>
+   {% endif %}
+
+   {% if user_task.submit_file != "" %}
+   <div>
+    <label>Student's work</label>
+
+    <div class="file_block">
+     <a class="download-file" href="{% url 'download-file' user_task.id %}">Download</a>
+     <div>{{user_task.submit_file}}</div>
+    </div>
+   </div>
+   {% endif %}
+  </div>
+ </div>
+
+ <form method="POST">
+  {% csrf_token %}
+  
+  <div class="comment_section">
+   <div>Add a comment</div>
+   {{form.comment}}
+  </div>
+
+  <div class="grade_submit">
+   <div class="grade_block">
+    <label for="id_grade">Grade the work</label>
+    <select name="grade" id="id_grade" required>
+     <option value="" disabled selected>---------</option>
+     <option value="passed">Passed</option>
+     <option value="redo">Redo</option>
+    </select>
+   </div>
+   <input type="submit" value="Save" class="submitTask">
+  </div>
+ </form>
+
+ 
+</div>
+{% endblock %}

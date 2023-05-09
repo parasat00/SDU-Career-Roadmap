@@ -1,0 +1,64 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<p class="page-name">
+ <a href="{% url 'single-track' track.id %}">{{track.title}}</a> \
+ <strong>Create a new task</strong>
+</p>
+<div class="form-container">
+ <form method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="field">
+   <h3>{{form.title.label}}</h3>
+   {{form.title}}
+  </div>
+  <div class="field">
+   <h3>{{form.short_intro.label}}</h3>
+   {{form.short_intro}}
+  </div>
+  <div class="field">
+   <h3>{{form.content.label}}</h3>
+   {{form.content}}
+  </div>
+  {% if other_tasks|length > 0 %}
+   <div class="field">
+    <h3>{{form.prerequisite.label}}</h3>
+    {{form.prerequisite}}
+   </div>
+  {% elif track.task_set.all|length > 0 %}
+   <div class="field">
+    <h3>{{form.prerequisite.label}}</h3>
+    <div>
+     <span>* Prerequisite tasks are tasks that should be completed in order to access this task</span>
+    </div>
+    {% for prerequisite in form.prerequisite %}
+     {{prerequisite}}
+    {% endfor %}
+   </div>
+  {% endif %}
+  <br>
+  <label for="images">Download images to use in markdown: </label>
+  <input type="file" name="images" multiple>
+
+  {% if images|length > 0 %}
+  <br>
+   <label>You have already downloaded images: </label>
+   <ul>
+    {% for image in images %}
+    <li><span>![alt text]({{image.image.url}})</span></li>
+    {% endfor %}
+   </ul>
+   <span>* To use them just copy and paste it inside content</span>
+  {% else %}
+   <div>
+    <span>You can use downloaded images like this: ![alt text](/images/markdown_pics/[nameOfTheFile])</span>
+   </div>
+  {% endif %}
+
+
+  <input type="submit" class="gs-button" value="{{text}}">
+ </form>
+</div>
+
+{% endblock %}

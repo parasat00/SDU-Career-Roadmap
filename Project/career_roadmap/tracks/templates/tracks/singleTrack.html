@@ -1,0 +1,209 @@
+{% extends 'main.html' %}
+
+{% load static %}
+{% load track_extra %}
+{% load allow_group %}
+{% block content %}
+
+
+<p class="page-name">
+    <a href="{% url 'tracks'%}">Dashboard</a> \
+    <strong>{{track.title}}</strong>
+</p>
+<div class="single-track">
+    <div class="header">
+        <h2> {{track.title}}
+            {% if request.user|has_group:"admin" or request.user|is_author:track.id %}
+                <span class="links">
+                    <a href="{% url 'edit-track' track.id %}">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" class="delete">
+                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                    </a>
+                </span>
+            {% endif %}
+        </h2>
+        {% if track.short_intro is not None %}
+            <p>{{track.short_intro}}</p>
+        {% endif %}
+    
+        <div class="track_info">
+            <div class="block_1">
+                <div class="students_num">{{track.students.all|length}} student{{track.students.all|pluralize:"s"}}</div>
+                <div class="track_author">Author: 
+                    <a href="{% url 'profile' track.author.id %}">{{track.author.first_name}} {{track.author.last_name}}</a>
+                </div>
+                {% if rating is not None %}
+                    <div class="rating" data-value="{{rating}}">
+                        <div class="txt">{{rating}}</div>
+                        <div class="rating-display">
+                            <i class="star"></i>
+                            <i class="star"></i>
+                            <i class="star"></i>
+                            <i class="star"></i>
+                            <i class="star"></i>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="block_2">
+                <div class="stats">100% FREE</div>
+                {% if show_certificate %}
+                <form method="POST" class="generate">
+                    {% csrf_token %}
+                    <input type="submit" class="gs-button generate" name="generate" value="Certificate">
+                </form>
+                
+                {% else %}
+                <div>Certificate after finishing the track</div>
+                {% endif %}
+            
+                {% if not in_process and request.user.is_authenticated %}
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="gs-button" name="Enroll" value="Enroll">
+                </form>
+                {% endif %}
+            
+            </div>
+        </div>
+    </div>
+    <div class="track-content">
+        <!-- <h3>Content</h3> -->
+        <div>
+            {{track.content|convert_markdown|safe}}
+        </div>
+        
+        {% if track in request.user.profile.my_tracks.all %}
+        {% if assessors|length == 0 %}
+        <div class="color_red">
+            Add assessors to the track to start the task
+            <a href="{% url 'assign-assessors' track.id %}">here</a>
+        </div>
+        {% endif %}
+        {% if certificate %}
+        <div class="download-certificate">
+            <img class="certificate" src="{{certificate.file.url}}" alt="">
+            <a href="{% url 'download-certificate' certificate.id %}"><span>Download</span></a>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+    {% if track.task_set.all|length > 0 %}
+    <div class="tasks">
+        <div class="title_stats">
+            <h1>Task{{track.task_set.all|pluralize:"s"}}</h1>
+
+            {% if request.user.is_authenticated %}
+            <div class="stats">
+                {% if request.user|has_group:"admin" or request.user|is_author:track.id %}
+                    <span class="links">
+                        <a href="{% url 'add-task' track.id %}">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            Add task
+                        </a>
+                    </span>
+                {% elif track in request.user.profile.my_tracks.all %}
+                    <img src="{% static 'images/icon_correct.png' %}" alt="">
+                    <div>14/{{track.task_set.all|length}} tasks done</div>
+                {% endif %}
+            </div>
+            {% endif %}
+            </div>
+        {% if request.user.is_authenticated and track in request.user.profile.my_tracks.all %}
+        <div class="icon_desc">
+            <div class="status completed">
+                <div class="icon"></div>
+                Completed
+            </div>
+            <div class="status waiting">
+                <div class="icon"></div>
+                Waiting for grade
+            </div>
+            <div class="status inProgress">
+                <div class="icon"></div>
+                In progress
+            </div>
+            <div class="status available">
+                <div class="icon"></div>
+                Available
+            </div>
+            <div class="status blocked">
+                <div class="icon"></div>
+                Not available
+            </div>
+        </div>
+        <div class="grid">
+            {% for user_task in queryset %}
+            <a href="{% url 'single-task' user_task.task.id %}" class="task-block {{user_task.status}}">
+                <div class="icon"></div>
+                <div class="order">{{user_task.task.order}}</div>
+                <div class="title">{{user_task.task.title}}</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+            <div class="grid">
+                {% for task in queryset %}
+                    <a href="{% url 'single-task' task.id %}" class="task-block blocked">
+                        <div class="icon"></div>
+                        <div class="order">{{task.order}}</div>
+                        <div class="title">{{task.title}}</div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% include 'pagination.html' with queryset=queryset page_range=page_range %}
+
+        
+
+    </div>
+    {% elif request.user|has_group:"admin" or request.user|is_author:track.id %}
+    <div class="stats">
+        <span class="links">
+            <a href="{% url 'add-task' track.id %}">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                Add task
+            </a>
+        </span>
+    </div>
+    {% endif %}
+
+    {% if track.track_review_set.all|length > 0 %}
+    <div class="review_block">
+        <h1>Review{{ track.track_review_set.all|pluralize:"s" }}</h1>
+        <div class="grid {% if track.track_review_set.all|length > 1 %} multiple {% endif %}">
+        {% for review in track.track_review_set.all|dictsortreversed:"rating"|slice:":4" %}
+            <div class="review">
+                <div class="user-block">
+                    <div class="user-wrapper">
+                        <img src="{{request.user.profile.profile_image.url}}" alt="">
+                    </div>
+                    <div class="review-owner">
+                        <div>{{review.owner.first_name}} {{review.owner.last_name}}</div>
+
+                        <div class="rating" data-value="{{review.rating}}">
+                            <div class="rating-display">
+                                <i class="star"></i>
+                                <i class="star"></i>
+                                <i class="star"></i>
+                                <i class="star"></i>
+                                <i class="star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="last">
+                    {{review.body|slice:"230"}}
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

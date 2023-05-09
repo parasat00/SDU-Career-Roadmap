@@ -1,0 +1,84 @@
+{% extends 'main.html' %}
+{% load static %}
+{% load allow_group %}
+{% block content %}
+<p class="page-name">My profile page</p>
+
+<div class="profile">
+
+ <div class="profile-block">
+  <div class="profile_pic">
+   <img src="{{ profile.profile_image.url }}" alt="profile_pic">
+  </div>
+  <h2>{{profile.first_name}} {{profile.last_name}}</h2>
+  {% if profile.short_intro is not None %}
+   <p>{{profile.short_intro}}</p>
+  {% endif %}
+ 
+  <div class="social_links">
+   {% if profile.social_instagram is not None %}
+    <a href="{{ profile.social_instagram }}"><img src="{% static 'images/Instagram_icon.svg' %}" alt="Instagram_icon"></a>
+   {% endif %}
+   {% if profile.social_linkedin is not None %}
+   <a href="{{profile.social_linkedin}}"><img src="{% static 'images/Linkedin_icon.svg' %}"></a>
+   {% endif %}
+   {% if profile.social_github is not None %}
+   <a href="{{profile.social_github}}"><img src="{% static 'images/Github_icon.svg' %}"></a>
+   {% endif %}
+  </div>
+ </div>
+
+ <div class="info-block">
+  <h2>ABOUT ME</h2>
+  <p>{{ profile.about }}</p>
+  <h2><i class="fa fa-envelope" aria-hidden="true"></i>Email address</h2>
+  <p>{{profile.email}}</p>
+  {% if profile.phone_number %}
+   <h2><i class="fa fa-phone" aria-hidden="true"></i>Phone number</h2>
+   <p>{{profile.phone_number}}</p>
+  {% endif %}
+
+  {% if allowed %}
+   <h2><i class="fa fa-id-card-o" aria-hidden="true"></i>Role:
+   {% if profile.user|has_group:"admin" %}
+   <span class="group admin">Admin</span>
+   {% elif profile.user|has_group:"creator" %}
+   <span class="group creator">Creator</span>
+   {% elif profile.user|has_group:"assessor" %}
+   <span class="group assessor">Assessor</span>
+   {% else %}
+   <span class="group student">Student</span>
+   {% endif %}
+   {% if request.user|has_group:"admin" %}
+   <span class="change-group">
+    <i class="fa fa-pencil" aria-hidden="true"></i>
+   </span>
+   {% endif %}
+   </h2>
+
+   <form method="POST" id="change-group-form" class="hidden">
+    {% csrf_token %}
+    {% for group in groups %}
+     <div>
+      <input type="radio" name="profile-group" id="{{group}}" value="{{group}}" {% if profile.user|has_group:group %} checked {% endif %}>
+      <label for="{{group}}">{{group}}</label>
+     </div>
+    {% endfor %}
+    <div class="form-btns">
+     <input type="submit" value="Save">
+     <a href="#" id="cancel-group-change">Cancel</a>
+    </div>
+   </form>
+
+   <a href="{% url 'edit-profile' profile.id %}" class="change-profile-links">Edit</a>
+   <a href="#" class="change-profile-links delete">
+    <i class="fa fa-trash-o" aria-hidden="true"></i>
+   </a>
+  {% endif %}
+ </div>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/change_group.js' %}"></script>
+{% endblock %}
